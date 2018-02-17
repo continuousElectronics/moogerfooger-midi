@@ -1,0 +1,42 @@
+{
+    "name": "moogerfooger-midi",
+    "version": "0.0.0",
+    "description": "Application to control settings via midi on moogerfooger pedals",
+    "main": "main.js",
+    "scripts": {
+        "dev": "webpack",
+        "start": "electron .",
+        "lint": "./node_modules/.bin/eslint --init",
+        "generate-icons": "vsvg -s ./svg-icons -t ./src/compiled-icons"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-polyfill": "^6.26.0",
+        "babel-preset-env": "^1.6.1",
+        "css-loader": "^0.28.7",
+        "electron": "^1.8.1",
+        "electron-reload": "^1.2.2",
+        "eslint": "^4.16.0",
+        "eslint-plugin-vue": "^4.2.2",
+        "node-sass": "^4.7.2",
+        "sass-loader": "^6.0.6",
+        "style-loader": "^0.19.0",
+        "svg-inline-loader": "^0.8.0",
+        "url-loader": "^0.6.2",
+        "vue-loader": "^13.5.0",
+        "vue-template-compiler": "^2.5.9",
+        "webpack": "^3.10.0",
+        "webpack-dev-server": "^2.9.7"
+    },
+    "dependencies": {
+        "midi-clock": "0.0.1",
+        "proto-create": "^1.0.1",
+        "vue": "^2.5.9",
+        "vue-select": "^2.4.0",
+        "webmidi": "^2.0.0"
+    }
+}

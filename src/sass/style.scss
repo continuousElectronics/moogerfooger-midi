@@ -1,0 +1,196 @@
+@font-face {
+    font-family: "Symbola";
+    src: url("../assets/fonts/Symbola.ttf");
+}
+
+* {
+    user-select: none;
+}
+
+svg {
+    height: 20px;
+}
+
+.v-select {
+    button.clear {
+        display: none !important;
+    }
+    input[type="search"] {
+        width: 0 !important;
+    }
+    ul.dropdown-menu {
+        min-width: 70px !important;
+    }
+    ul.dropdown-menu li > a {
+        padding: 3px 7px;
+    }
+}
+
+$yformpad: 3px;
+$xformpad: 5px;
+
+.form-control {
+    padding: $yformpad $xformpad;
+}
+
+#app {
+    padding: 12px;
+    width: 1200px;
+}
+
+.global-wrapper {
+    display: flex;
+    flex: auto;
+    > * {
+        margin-right: 16px;
+    }
+    option {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+    select {
+        overflow-y: hidden;
+        font-size: 12px;
+    }
+}
+
+.label-wrapper {
+    text-align: center;
+}
+
+.ef-btn {
+    display: block;
+    margin: 10px auto 0 auto;
+}
+
+.btn:focus, .btn:active {
+   outline: none !important;
+   box-shadow: none;
+}
+
+.btn-reg {
+    background: rgb(89, 109, 140);
+    color: rgb(220, 227, 237);
+}
+
+.btn-reg:hover {
+    background: rgb(64, 77, 96);
+}
+
+input[type=number]::-webkit-inner-spin-button {
+    display: none;
+}
+
+.effects-wrapper {
+    padding-top: 27px;
+    display: flex;
+    flex: auto;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    label {
+        display: block;
+    }
+}
+
+$effectPad: 8px;
+$effectFont: 13px;
+
+.effect {
+    width: 49.7%;
+    margin-bottom: $effectPad;
+}
+
+.effect-inner {
+    background: rgb(220, 227, 237);
+    padding: $effectPad;
+    border-radius: 4px;
+    position: relative;
+}
+
+.destroy {
+    position: absolute;
+    right: $effectPad;
+    top: $effectPad;
+    font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    line-height: 1.2;
+    z-index: 500;
+}
+
+.effect-states {
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.channel {
+    font-size: $effectFont;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex: auto;
+    align-items: center;
+    label {
+        margin: 0 8px 0 $xformpad;
+    }
+    div.dropdown {
+        width: 80px;
+        background-color: #fff;
+    }
+    div.dropdown-toggle {
+        border-radius: 0;
+    }
+}
+
+.effect-name, .send-all {
+    width: 100%;
+}
+
+.effect-name {
+    height: 36px;
+    display: flex;
+    flex: auto;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.send-all {
+    margin-top: 12px;
+}
+.symbol {
+    font-family: "Symbola";
+    font-size: 26px;
+    position: relative;
+    bottom: 3px;
+    line-height: .9;
+}
+
+.effect-state {
+    font-size: $effectFont;
+}
+
+.mf-104m-analog-delay {
+
+    .effect-state {
+        width: 25%;
+    }
+
+}
+
+.mf-108m-cluster-flux {
+
+    .effect-state {
+        width: 25%;
+    }
+
+}
+
+.mf-105m-midi-murf {
+
+    .effect-state {
+        width: 25%;
+    }
+
+}
