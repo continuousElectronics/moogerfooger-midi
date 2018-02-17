@@ -1,6 +1,5 @@
 <template>
     <div id="app">
-
         <div class="global-wrapper">
             <avail-effects @effectEvent="createEffect($event)"></avail-effects>
             <midi-dest :outputs="outputs" @destEvent="output = outputs[$event]"></midi-dest>
@@ -75,10 +74,7 @@ export default {
         // inputting name, current and channel
 
         // this.createEffect("MF-104M Analog Delay", undefined, 1);
-        this.createEffect("MF-108M Cluster Flux", { "Bypass": 0, "Range": 0 }, 3);
-        this.createEffect("MF-108M Cluster Flux", { "Bypass": 0, "Range": 0 }, 4);
-        this.createEffect("MF-108M Cluster Flux", { "Bypass": 0, "Range": 0 }, 5);
-        this.createEffect("MF-108M Cluster Flux", { "Bypass": 64, "Range": 127 }, 12);
+        // this.createEffect("MF-108M Cluster Flux", { "Bypass": 0, "Range": 0 }, 3);
         // this.createEffect("MF-105M Midi Murf",    undefined, 4);
     },
     methods: {
