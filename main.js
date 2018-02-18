@@ -1,4 +1,7 @@
-const { app, BrowserWindow, Menu } = require("electron");
+const
+    { app, BrowserWindow, Menu, dialog } = require("electron"),
+    fs   = require("fs"),
+    path = require("path");
 
 // Let electron reloads by itself when webpack watches changes in ./app/
 require("electron-reload")(__dirname);
@@ -14,10 +17,9 @@ app.on("ready", () => {
     });
 
     const menu = Menu.buildFromTemplate(template);
-
+    
     // Menu.setApplicationMenu(menu);
     mainWindow.loadURL(`file://${__dirname}/dist/index.html`);
-
 });
 
 let template = [
@@ -27,7 +29,21 @@ let template = [
             {
                 label: "Save",
                 click() {
-                    console.log("clicked");
+                    dialog.showSaveDialog((filename) => {
+                        if (filename === undefined) {
+                            console.log("please choose a filename");
+                            return;
+                        }
+                        let content = "stuff";
+                        fs.writeFile(filename + ".json", content, (err) => {
+                            if (err) {
+                                console.log("an error occurred");
+                                return;
+                            }
+
+
+                        });
+                    });
                 }
             },
             {

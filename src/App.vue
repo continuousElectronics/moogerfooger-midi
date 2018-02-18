@@ -30,6 +30,8 @@
 
 <script>
 
+const { remote } = require("electron");
+console.log(remote);
 import { effectConstruct }         from "./js/effect.js";
 import { indexRange, toClassName, outlineBlink } from "./js/utility.js";
 import effect       from "./components/effect.vue";
