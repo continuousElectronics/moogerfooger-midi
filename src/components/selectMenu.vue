@@ -1,16 +1,16 @@
 <template>
     <div class="v-select">
         <v-select
-            ref="vSelect"
+            ref="vs"
             v-model="selection"
             :options="state.options"
             label="html"
             :searchable="false"
         >
-            <template slot="option" slot-scope="option">
+            <template slot-scope="option" slot="option">
                 <span v-html="option.html"></span>
             </template>
-            <template slot="selected-option" slot-scope="option">
+            <template slot-scope="option" slot="selected-option" >
                 <span v-html="option.html" @click="iconClick(option.value)"></span>
             </template>
         </v-select>
@@ -39,9 +39,7 @@ export default {
         }
     },
     mounted() {
-        if (this.$refs.vSelect) {
-            this.$refs.vSelect.deselect = () => {};
-        }
+        (this.$refs.vs || {}).deselect = () => {};
     },
     methods: {
         sendMsg(val) {

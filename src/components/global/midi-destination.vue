@@ -4,16 +4,15 @@
             <label>Midi Device</label>
         </div>
         <select
-            :size="outputs.length > menuSize ? 0 : menuSize"
             v-model="value"
+            :size="outputs.length > menuSize ? 0 : menuSize"
             @change="$emit('destEvent', value)"
         >
             <option 
                 v-for="(output, index) in outputs" 
                 :value="index"
                 :key="index"
-            >{{ output.name }}
-            </option>
+            >{{ output.name }}</option>
         </select>
     </div>
 </template>

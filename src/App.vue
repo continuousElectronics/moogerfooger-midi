@@ -2,38 +2,22 @@
     <div id="app">
         <div class="global-wrapper">
             <avail-effects @effectEvent="createEffect($event)"></avail-effects>
-            <midi-dest :outputs="outputs" @destEvent="output = outputs[$event]"></midi-dest>
+            <midi-dest @destEvent="output = outputs[$event]" :outputs="outputs"></midi-dest>
             <midi-clock :output="output"></midi-clock>
             <global-send @globalSendEvent="globalSend"></global-send>
         </div>
-        <div class="effects-wrapper">
-            <div
-                v-for="effect in effects"
-                :key="effect.id"
-                :ref="'ef' + effect.id"
-                :class="'effect ' + toClassName(effect.name)"
-            >
-                <div class="effect-inner">
-                    <button
-                        @click="destroyEffect(effect)" 
-                        class="destroy"
-                    >&times;</button>
-                    <effect
-                        :effect="effect"
-                        :output="output"
-                    ></effect>
-                </div>
-            </div>
+        <div class="effects-wrapper" ref="efxWrap">
+
         </div>
     </div>
 </template>
 
 <script>
 
-const { remote } = require("electron");
-console.log(remote);
-import { effectConstruct }         from "./js/effect.js";
-import { indexRange, toClassName, outlineBlink } from "./js/utility.js";
+import Vue from "vue";
+import { setupMenuListeners } from "./fileOperations.js";
+import { effectConstruct, setCurrent } from "./js/effect.js";
+import { toClassName, markIfFileChanged } from "./js/utility.js";
 import effect       from "./components/effect.vue";
 import availEffects from "./components/global/available-effects.vue";
 import midiDest     from "./components/global/midi-destination.vue";
@@ -41,7 +25,7 @@ import midiClock    from "./components/global/midi-clock.vue";
 import globalSend   from "./components/global/global-send.vue";
 
 const
-    indexSet = new Set(),
+    { remote } = require("electron"),
     effectMax = 16;
 
 export default {
@@ -62,64 +46,57 @@ export default {
     data() {
         return {
             outputs: [],
-            output: {},
+            output:  {},
             effects: [],
-            testVal: 1
+            filepath: undefined,
+            fileChanged: false
         };
     },
     beforeMount() {
         this.outputs = this.WebMidi.outputs;
         this.output  = this.outputs[0] || {};
-    },
-    mounted() {
-        // to open saved files loop through array here and call this.createEffect on each
-        // inputting name, current and channel
-
-        // this.createEffect("MF-104M Analog Delay", undefined, 1);
-        // this.createEffect("MF-108M Cluster Flux", { "Bypass": 0, "Range": 0 }, 3);
-        // this.createEffect("MF-105M Midi Murf",    undefined, 4);
+        setupMenuListeners(this);
     },
     methods: {
-        createEffect(key, current, channel) {
-            if (this.effects.length >= effectMax) {
-                alert("you cannot create more than " + effectMax + " effects");
+        createEffect(effectName, current, channel, fileopen) {
+            const len = this.effects.length;
+            
+            // do not allow user to create more effects than max
+            if (len >= effectMax) {
+                remote.dialog.showErrorBox(
+                    "error",
+                    "you cannot create more than " + effectMax + " effects"
+                );
                 return;
             }
+            
+            // if there is a file open and it hasn't been changed,
+            // creating effect (not from file open process) marks file changed
+            markIfFileChanged(this, fileopen);
 
-            let effect, id = this.getAvailableId();
-
-            effect = effectConstruct(key, id);
-            if (current) {
-                effect.current = current;
-            }
-            if (channel) {
-                effect.channel = channel;
-            } else {
-                effect.channel = id + 1;
-            }
-            this.effects.push(effect);
-        },
-        destroyEffect(effect) {
-            indexSet.delete(effect.id);
-            this.effects.splice(
-                this.effects.indexOf(effect), 1
-            );
-        },
-        getAvailableId() {
-            let id = 0;
-
-            for (let setVal of indexRange(effectMax)) {
-                if (!indexSet.has(setVal)) {
-                    indexSet.add(id);
-                    return id;
-                }
-                id += 1;
-            }
+            // construct new effect object
+            const newEffect = effectConstruct(effectName);
+            
+            // attach channel, current settings object, and vue instance
+            newEffect.channel = (channel) ? channel : len + 1;
+            newEffect.current = (current) ? current : setCurrent(effectName);
+            newEffect.vm      = this;
+            
+            // push effect object into effects array to keep track of it
+            this.effects.push(newEffect);
+            
+            // create mount point and attach to effects wrapper. mount new effect instance.
+            const 
+                wrap = document.createElement("div"),
+                ctor = Vue.extend(effect),
+                inst = new ctor({ propsData: { effect: newEffect } });
+                
+            this.$refs.efxWrap.appendChild(wrap);
+            inst.$mount(wrap);
         },
         globalSend() {
             for (let effect of this.effects) {
-                effect.sendAllMessages(this.output);
-                outlineBlink(this.$refs["ef" + effect.id][0]);
+                effect.sendAllMessages();
             }
         },
         toClassName

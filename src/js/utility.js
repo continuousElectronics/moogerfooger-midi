@@ -7,6 +7,18 @@ const indexRange = function* (length) {
     }
 };
 
+const isInt = function (input) {
+    return Number.isInteger(input);
+};
+
+const isArray = function (input) {
+    return Array.isArray(input);
+};
+
+const isIntOrArray = function (input) {
+    return isInt(input) || isArray(input);
+};
+
 const renderSymbols = function () {
     const notes = {
         whole:        "&#119133;",
@@ -40,28 +52,11 @@ const toClassName = function (string) {
         .toLowerCase();
 };
 
-const rangeValidate = function ({ min, max, test }) {
-    if (typeof min !== "number" || typeof max !== "number" || typeof test !== "number") {
-        throw new Error("min, max and test values must be numbers");
-    }
-
-    if (test <= min) {
-        return min;
-    } 
-    if (test >= max) {
-        return max;
-    }
-    return test;
-};
-
-const chg14bitToTwo7bit = function (dec14bit) {
-    if (
-        !Number.isInteger(dec14bit) || 
-        dec14bit < 0 || dec14bit > 16383
-    ) {
+const chg14bitToTwo7bit = function (int) {
+    if (!isInt(int) || int < 0 || int > 16383) {
         throw new TypeError("input must a 14 bit integer");
     }
-    const binaryStr = dec14bit.toString(2).padStart(14, 0);
+    const binaryStr = int.toString(2).padStart(14, 0);
 
     return [
         parseInt(binaryStr.substr(0, 7), 2),
@@ -87,27 +82,6 @@ const chgTwo7bitTo14bit = function (two7bitArr) {
     return parseInt(first + second, 2);
 };
 
-const sendCC = function ({ controller, value, channel, output }) {
-    controller = Array.isArray(controller) ? controller : [controller];
-    value = Array.isArray(value) ? value : [value];
-
-    for (let i of controller.keys()) {
-        if (!output.sendControlChange) {
-            return;
-        }
-        console.log("cc: ", controller[i], "val: ", value[i], "channel: ", channel);
-        output.sendControlChange(controller[i], value[i], channel);
-    }
-};
-
-const sendProgram = function ({ program, channel, output }) {
-    if (!output.sendProgramChange) {
-        return;
-    }
-    console.log("progam: ", program, "channel: ", channel);
-    output.sendProgramChange(program, channel);
-};
-
 const outlineBlink = function (el, startMs = 0, endMs = 100) {
     if ( !(el instanceof Element) ) {
         return;
@@ -121,14 +95,21 @@ const outlineBlink = function (el, startMs = 0, endMs = 100) {
     setTimeout(() => el.style.outline = noOutline,      endMs);
 };
 
+const markIfFileChanged = function (vm, fileopen) {
+    if (vm.filepath && !vm.fileChanged && !fileopen) {
+        vm.fileChanged = true;
+    }
+};
+
 export {
     indexRange,
+    isInt,
+    isArray,
+    isIntOrArray,
     renderSymbols,
     toClassName,
-    rangeValidate,
     chg14bitToTwo7bit,
     chgTwo7bitTo14bit,
-    sendCC,
-    sendProgram,
-    outlineBlink
+    outlineBlink,
+    markIfFileChanged
 };

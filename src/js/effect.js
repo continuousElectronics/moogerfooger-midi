@@ -2,7 +2,13 @@ import delayMap   from "./effects/mf-104-delay.js";
 import clusterMap from "./effects/mf-108-cluster.js";
 import murfMap    from "./effects/mf-105-murf.js";
 import create     from "proto-create";
-import { sendCC, sendProgram, outlineBlink } from "./utility.js";
+import { 
+    outlineBlink, 
+    isInt, 
+    isIntOrArray, 
+    isArray, 
+    markIfFileChanged 
+} from "./utility.js";
  
 const effectsMap = new Map([
     ["MF-104M Analog Delay", delayMap],
@@ -10,8 +16,10 @@ const effectsMap = new Map([
     ["MF-105M Midi Murf", murfMap]
 ]);
 
-const setCurrent = function (map) {
-    let o = {};
+const setCurrent = function (name) {
+    const
+        map = effectsMap.get(name),
+        o   = {};
 
     for (let [key, val] of map.entries()) {
         if (val.default !== undefined) {
@@ -23,53 +31,74 @@ const setCurrent = function (map) {
 };
 
 const effectPrototype = {
-    sendMessage(state, value, output, el) {
+    sendMessage(state, value, el) {
         const 
-            effectMap = effectsMap.get(this.name),
-            controller = effectMap.get(state).controller,
-            channel = this.channel;
+            effectMap  = effectsMap.get(this.name),
+            stateObj   = effectMap.get(state),
+            channel    = this.channel,
+            output     = this.vm.output;
 
-        this.current[state] = value;
-        // console.log(this);
-        // console.log(channel);
-        // console.log(this.current);
-        if ( 
-            ( !Number.isInteger(value) && !Array.isArray(value) ) || 
-              !Number.isInteger(channel)
-        ) {
+        if (!stateObj.options || stateObj.options.length > 1) {
+            this.current[state] = value;
+            markIfFileChanged(this.vm);
+        }
+
+        if (!isIntOrArray(value) || !isInt(channel) || output.connection !== "open") {
             return;
         }
+
+        let controller = stateObj.controller;
+        
+        // if controller is defined on state Object, it is a CC message, otherwise it is a Program Change
         if (controller) {
-            sendCC({   controller, value, channel, output });
+            controller = isArray(controller) ? controller : [controller];
+            value      = isArray(value)      ? value      : [value];
+
+            for (let i of controller.keys()) {
+                console.log("cc: ", controller[i], "val: ", value[i], "channel: ", channel);
+                output.sendControlChange(controller[i], value[i], channel);
+            }
         } else {
-            sendProgram({ program: value, channel, output });
+            console.log("progam: ", value, "channel: ", channel);
+            output.sendProgramChange(value, channel);
         }
+
+        // Outline state blinks on message send
         if (el) {
             outlineBlink(el);
         }
     },
-    sendAllMessages(output) {
-        const currentEntries = Object.entries(this.current);
+    sendAllMessages() {
+        const nodes = this.vm.$el.querySelector(".effects-wrapper").childNodes;
         
-        for (let [state, value] of currentEntries) {
-            this.sendMessage(state, value, output);
+        for (let node of nodes) {
+            outlineBlink(node);
+        }
+        for (let [state, value] of Object.entries(this.current)) {
+            this.sendMessage(state, value);
         }
     },
+    get states() {
+        return Array.from(
+            effectsMap.get(this.name).entries()
+        ).map(a => {
+            const name = a[0], state = a[1];
+            state.name = name;
+            return state;
+        });
+    }
 };
 
-const effectConstruct = function (name, id) {
-    const stateMap = effectsMap.get(name);
-    
+const effectConstruct = function (name) {
     return create({
         proto: effectPrototype,
         target: {
             name,
-            id,
-            stateMap,
             channel: 1,
-            current: setCurrent(stateMap)
+            current: {},
+            vm:      {}
         }
     });
 };
 
-export { effectConstruct, effectsMap };
+export { effectConstruct, setCurrent, effectsMap };

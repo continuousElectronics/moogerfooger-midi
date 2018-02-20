@@ -1,66 +1,65 @@
-const
-    { app, BrowserWindow, Menu, dialog } = require("electron"),
-    fs   = require("fs"),
-    path = require("path");
-
-// Let electron reloads by itself when webpack watches changes in ./app/
 require("electron-reload")(__dirname);
-
-// To avoid being garbage collected
+const { app, BrowserWindow, Menu } = require("electron");
 let mainWindow;
+
+app.setName("Moogerfooger Midi");
 
 app.on("ready", () => {
 
-    mainWindow = new BrowserWindow({ 
-        width: 1200, 
-        height: 768 
+    mainWindow = new BrowserWindow({
+        width: 1217,
+        height: 768
     });
 
-    const menu = Menu.buildFromTemplate(template);
+    mainWindow.webContents.on("will-navigate", (e) => {
+        e.preventDefault();
+    });
     
-    // Menu.setApplicationMenu(menu);
+    // Menu.setApplicationMenu(
+    //     Menu.buildFromTemplate(template)
+    // );
+
     mainWindow.loadURL(`file://${__dirname}/dist/index.html`);
 });
 
-let template = [
+const template = [
     {
         label: "File",
         submenu: [
             {
-                label: "Save",
+                label: "Open Setup",
+                accelerator: process.platform === "darwin" ? "Cmd+O" : "Ctrl+O",
                 click() {
-                    dialog.showSaveDialog((filename) => {
-                        if (filename === undefined) {
-                            console.log("please choose a filename");
-                            return;
-                        }
-                        let content = "stuff";
-                        fs.writeFile(filename + ".json", content, (err) => {
-                            if (err) {
-                                console.log("an error occurred");
-                                return;
-                            }
-
-
-                        });
-                    });
-                }
-            },
-            {
-                label: "Save As",
-                click() {
-                    console.log("clicked");
+                    mainWindow.webContents.send("open");
                 }
             },
             {
                 type: "separator"
             },
             {
-                label: "Quit",
+                label: "Save Setup",
+                accelerator: process.platform === "darwin" ? "Cmd+S" : "Ctrl+S",
                 click() {
-                    app.quit();
-                },
-            }
+                    mainWindow.webContents.send("save");
+                }
+            },
+            {
+                label: "Save Setup As",
+                accelerator: process.platform === "darwin" ? "Cmd+Shift+S" : "Ctrl+Shift+S",
+                click() {
+                    mainWindow.webContents.send("save-as");
+                }
+            },
+            {
+                type: "separator"
+            },
+            {
+                label: "Close Setup",
+                accelerator: process.platform === "darwin" ? "Cmd+W" : "Ctrl+W",
+                click() {
+                    mainWindow.webContents.send("close");
+                }
+            },
         ]
     },
     {
@@ -107,17 +106,19 @@ if (process.platform === "darwin") {
                 type: "separator"
             },
             {
-                role: "quit"
+                label: "Quit" + " " + app.getName(),
+                accelerator: "Cmd+Q",
+                click() {
+                    mainWindow.webContents.send("quit");
+                }
             }
         ]
     });
-    // template.push({
-    //     label: "Window"
-    // });
+
     template[2].submenu = [
         {
             label: "Minimize",
-            accelerator: "CmdOrCtrl+M",
+            accelerator: "Cmd+M",
             role: "minimize"
         },
         {
@@ -132,4 +133,17 @@ if (process.platform === "darwin") {
             role: "front"
         }
     ];
+} else {
+    template[0].submenu.push(
+        {
+            type: "separator"
+        },
+        {
+            label: "Quit" + " " + app.getName(),
+            accelerator: "Ctrl+Q",
+            click() {
+                mainWindow.webContents.send("quit");
+            }
+        }
+    );
 }
