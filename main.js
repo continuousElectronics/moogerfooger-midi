@@ -1,6 +1,11 @@
-require("electron-reload")(__dirname);
-const { app, BrowserWindow, Menu } = require("electron");
+if (process.env.NODE_ENV === "development") { 
+    require("electron-reload")(__dirname); 
+}
+
+const { app, BrowserWindow, Menu, powerSaveBlocker } = require("electron");
 let mainWindow;
+
+powerSaveBlocker.start("prevent-app-suspension");
 
 app.setName("Moogerfooger Midi");
 
@@ -10,14 +15,14 @@ app.on("ready", () => {
         width: 1217,
         height: 768
     });
-
+    // mainWindow.webContents.openDevTools();
     mainWindow.webContents.on("will-navigate", (e) => {
         e.preventDefault();
     });
     
-    // Menu.setApplicationMenu(
-    //     Menu.buildFromTemplate(template)
-    // );
+    Menu.setApplicationMenu(
+        Menu.buildFromTemplate(template)
+    );
 
     mainWindow.loadURL(`file://${__dirname}/dist/index.html`);
 });

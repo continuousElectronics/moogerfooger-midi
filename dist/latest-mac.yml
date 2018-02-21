@@ -1,0 +1,10 @@
+version: 0.0.0
+files:
+  - url: moogerfooger-midi-0.0.0-mac.zip
+    sha512: oJTY+uAK4QCdWMhpTFETvTRh9di26ii4pCXtowJ20DuEdPxAukkuDLY9vMmE1J8j94Wvfz/YMHIm57fwDiJq/A==
+  - url: moogerfooger-midi-0.0.0.dmg
+    sha512: IGjjACn93xrF+K3xqmeWRcJtfx+obXuXrjbmuyebE+q5lD0OodPexZElvgrTIm+R/fJHMc8l3XMlK6+LtAXopA==
+    size: 49545148
+path: moogerfooger-midi-0.0.0-mac.zip
+sha512: oJTY+uAK4QCdWMhpTFETvTRh9di26ii4pCXtowJ20DuEdPxAukkuDLY9vMmE1J8j94Wvfz/YMHIm57fwDiJq/A==
+releaseDate: '2018-02-21T01:55:54.945Z'

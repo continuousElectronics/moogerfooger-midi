@@ -2,12 +2,12 @@ import delayMap   from "./effects/mf-104-delay.js";
 import clusterMap from "./effects/mf-108-cluster.js";
 import murfMap    from "./effects/mf-105-murf.js";
 import create     from "proto-create";
-import { 
-    outlineBlink, 
-    isInt, 
-    isIntOrArray, 
-    isArray, 
-    markIfFileChanged 
+import {
+    outlineBlink,
+    isInt,
+    isIntOrArray,
+    isArray,
+    markIfFileChanged
 } from "./utility.js";
  
 const effectsMap = new Map([
@@ -33,17 +33,28 @@ const setCurrent = function (name) {
 const effectPrototype = {
     sendMessage(state, value, el) {
         const 
-            effectMap  = effectsMap.get(this.name),
-            stateObj   = effectMap.get(state),
-            channel    = this.channel,
-            output     = this.vm.output;
+            effectMap = effectsMap.get(this.name),
+            stateObj  = effectMap.get(state),
+            channel   = this.channel,
+            output    = this.vm.output;
+
+        if (
+            (state === "Time" && this.current["Delay Clock Sync"] === 64)   ||
+            (state === "LFO Rate" && this.current["LFO Clock Sync"] === 64)
+        ) {
+            return;
+        }
+
+        if (state === "LFO Rate" && this.current["LFO Clock Sync"] === 64) {
+            return;
+        }
 
         if (!stateObj.options || stateObj.options.length > 1) {
             this.current[state] = value;
             markIfFileChanged(this.vm);
         }
 
-        if (!isIntOrArray(value) || !isInt(channel) || output.connection !== "open") {
+        if (!isIntOrArray(value) || !isInt(channel) || !output.connection) {
             return;
         }
 
@@ -55,12 +66,16 @@ const effectPrototype = {
             value      = isArray(value)      ? value      : [value];
 
             for (let i of controller.keys()) {
-                console.log("cc: ", controller[i], "val: ", value[i], "channel: ", channel);
-                output.sendControlChange(controller[i], value[i], channel);
+                // In dev the setTimeout does not seem to be needed
+                // In prod if it is not there the message seems to be corrupted
+                setTimeout(() => {
+                    output.sendControlChange(controller[i], value[i], channel);
+                });
             }
         } else {
-            console.log("progam: ", value, "channel: ", channel);
-            output.sendProgramChange(value, channel);
+            setTimeout(() => {
+                output.sendProgramChange(value, channel);
+            });
         }
 
         // Outline state blinks on message send

@@ -1,0 +1,19 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.electron.moogerfoogermidi
+productName: Moogerfooger Midi
+files:
+  - dist/bundle.js
+  - dist/index.html
+  - main.js
+mac:
+  category: music electronics
+linux:
+  target:
+    - AppImage
+    - deb
+win:
+  target: squirrel
+  icon: build/icon.ico
+electronVersion: 1.8.2

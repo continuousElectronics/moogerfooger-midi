@@ -10,11 +10,38 @@
     "scripts": {
         "dev": "webpack",
         "start": "electron .",
-        "lint": "./node_modules/.bin/eslint --init",
-        "generate-icons": "vsvg -s ./svg-icons -t ./src/compiled-icons"
+        "pack": "electron-builder --dir",
+        "dist": "electron-builder"
     },
-    "keywords": [],
-    "author": "",
+    "build": {
+        "appId": "com.electron.moogerfoogermidi",
+        "productName": "Moogerfooger Midi",
+        "files":["dist/bundle.js", "dist/index.html", "main.js"],
+        "mac": {
+            "category": "music electronics"
+        },
+        "linux": {
+            "target": [
+                "AppImage",
+                "deb"
+            ]
+        },
+        "win": {
+            "target": "squirrel",
+            "icon": "build/icon.ico"
+        }
+    },
+    "keywords": [
+        "moog",
+        "moogerfooger",
+        "midi",
+        "midi control",
+        "music",
+        "electronics",
+        "analog",
+        "electronics"
+    ],
+    "author": "Will Senisi <will.senisi@gmail.com>",
     "license": "ISC",
     "devDependencies": {
         "babel-core": "^6.26.0",
@@ -23,6 +50,7 @@
         "babel-preset-env": "^1.6.1",
         "css-loader": "^0.28.7",
         "electron": "^1.8.2",
+        "electron-builder": "^20.0.7",
         "electron-reload": "^1.2.2",
         "eslint": "^4.16.0",
         "eslint-plugin-vue": "^4.2.2",
@@ -31,6 +59,7 @@
         "sass-loader": "^6.0.6",
         "style-loader": "^0.19.0",
         "svg-inline-loader": "^0.8.0",
+        "uglifyjs-webpack-plugin": "^1.2.0",
         "url-loader": "^0.6.2",
         "vue-loader": "^13.5.0",
         "vue-template-compiler": "^2.5.9",

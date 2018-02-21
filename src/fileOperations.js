@@ -2,10 +2,17 @@ import { effectsMap } from "./js/effect.js";
 
 const 
     { ipcRenderer, remote } = require("electron"),
-    fs   = require("fs"),
-    path = require("path"),
+    fs      = require("fs"),
+    path    = require("path"),
     appName = remote.app.getName();
 
+const clearEfxArr = function (vm) {
+    for (let effect of vm.effects) {
+        effect.component.$destroy();
+        effect.component.$el.remove();
+    }
+    vm.effects = [];
+};
 
 const parseIfValidFile = function (data) {
     let effectsArray;
@@ -73,10 +80,9 @@ const openFile = function(vm) {
                 return remote.dialog.showErrorBox("error", "invalid or corrupted file");
             }
 
-            vm.effects = [];
+            clearEfxArr(vm);
             vm.filepath = filepath;
             vm.fileChanged = false;
-            vm.indexSet = new Set();
             appendFileName(filepath);
             
 
@@ -145,10 +151,9 @@ const askToSave = function (vm, o) {
 };
 
 const freshSetup = function (vm) {
-    vm.effects = [];
+    clearEfxArr(vm);
     vm.filepath = undefined;
     vm.fileChanged = false;
-    vm.indexSet = new Set();
     remote.getCurrentWindow().setTitle(appName);
 };
 

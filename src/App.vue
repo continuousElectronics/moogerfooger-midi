@@ -93,6 +93,7 @@ export default {
                 
             this.$refs.efxWrap.appendChild(wrap);
             inst.$mount(wrap);
+            newEffect.component = inst;
         },
         globalSend() {
             for (let effect of this.effects) {

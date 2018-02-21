@@ -1,4 +1,6 @@
-const path = require("path");
+const 
+    UglifyJsPlugin = require("uglifyjs-webpack-plugin"),
+    path = require("path");
 
 module.exports = {
     watch: true,
@@ -13,6 +15,11 @@ module.exports = {
     devServer: {
         contentBase: "./dist"
     },
+    plugins: [
+        new UglifyJsPlugin({
+            include: /bundle\.js$/
+        })
+    ],
     module: {
         rules: [
             {
