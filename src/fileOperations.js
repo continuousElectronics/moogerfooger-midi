@@ -67,6 +67,10 @@ const appendFileName = function (filepath = "") {
 
 const openFile = function(vm) {
     remote.dialog.showOpenDialog(files => {
+        if (files === undefined) {
+            return;
+        }
+        
         const filepath = files[0];
 
         fs.readFile(filepath, "utf8", (err, data) => {

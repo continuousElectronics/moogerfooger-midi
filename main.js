@@ -1,8 +1,13 @@
-if (process.env.NODE_ENV === "development") { 
+const inDev = process.env.NODE_ENV === "development";
+
+if (inDev) { 
     require("electron-reload")(__dirname); 
 }
 
+global.easymidi = require("easymidi");
+
 const { app, BrowserWindow, Menu, powerSaveBlocker } = require("electron");
+
 let mainWindow;
 
 powerSaveBlocker.start("prevent-app-suspension");
@@ -15,7 +20,7 @@ app.on("ready", () => {
         width: 1217,
         height: 768
     });
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
     mainWindow.webContents.on("will-navigate", (e) => {
         e.preventDefault();
     });
@@ -24,7 +29,7 @@ app.on("ready", () => {
         Menu.buildFromTemplate(template)
     );
 
-    mainWindow.loadURL(`file://${__dirname}/dist/index.html`);
+    mainWindow.loadURL(`file://${__dirname}/build/index.html`);
 });
 
 const template = [
@@ -149,6 +154,23 @@ if (process.platform === "darwin") {
             click() {
                 mainWindow.webContents.send("quit");
             }
+        }
+    );
+}
+
+if (inDev) { 
+    template.push(
+        {
+            label: "Dev Tools",
+            submenu: [
+                {
+                    label: "open dev tools",
+                    accelerator: process.platform === "darwin" ? "Cmd+Option+I" : "Ctrl+Option+I",
+                    click() {
+                        mainWindow.webContents.openDevTools();
+                    }
+                },
+            ]
         }
     );
 }

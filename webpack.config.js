@@ -1,25 +1,21 @@
 const 
-    UglifyJsPlugin = require("uglifyjs-webpack-plugin"),
-    path = require("path");
+    path   = require("path"),
+    Uglify = require("uglifyjs-webpack-plugin"),
+    env    = process.env.NODE_ENV;
 
-module.exports = {
-    watch: true,
+const webpackObj = {
+    watch: (env === "development") ? true : false,
     target: "electron",
     entry: {
         main: ["babel-polyfill", "./src/index"]
     },
     output: {
         filename: "bundle.js",
-        path: path.resolve(__dirname, "dist")
+        path: path.resolve(__dirname, "build")
     },
     devServer: {
-        contentBase: "./dist"
+        contentBase: "./build"
     },
-    plugins: [
-        new UglifyJsPlugin({
-            include: /bundle\.js$/
-        })
-    ],
     module: {
         rules: [
             {
@@ -55,3 +51,11 @@ module.exports = {
         ]
     }
 };
+
+if (env === "production") {
+    webpackObj.plugins = [
+        new Uglify({ include: /bundle\.js$/ })
+    ];
+}
+
+module.exports = webpackObj;

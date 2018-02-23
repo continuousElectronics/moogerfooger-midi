@@ -7,6 +7,11 @@ import "./sass/style.scss";
 
 Vue.component("v-select", vSelect);
 
+
+const { remote } = require("electron");
+
+const easymidi = remote.getGlobal("easymidi");
+
 WebMidi.enable(err => {
 
     if (err) {
@@ -15,7 +20,7 @@ WebMidi.enable(err => {
     }
     
     const o = {
-        props: { WebMidi }
+        props: { WebMidi, easymidi }
     };
 
     new Vue({

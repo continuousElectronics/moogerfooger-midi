@@ -10,7 +10,7 @@
         >
             <option 
                 v-for="(output, index) in outputs" 
-                :value="index"
+                :value="output.name"
                 :key="index"
             >{{ output.name }}</option>
         </select>
@@ -29,7 +29,7 @@ export default {
     data() {
         return {
             menuSize: 5,
-            value: 0
+            value: this.outputs[0].name
         };
     }
 };

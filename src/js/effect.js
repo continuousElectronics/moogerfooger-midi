@@ -45,16 +45,12 @@ const effectPrototype = {
             return;
         }
 
-        if (state === "LFO Rate" && this.current["LFO Clock Sync"] === 64) {
-            return;
-        }
-
         if (!stateObj.options || stateObj.options.length > 1) {
             this.current[state] = value;
             markIfFileChanged(this.vm);
         }
 
-        if (!isIntOrArray(value) || !isInt(channel) || !output.connection) {
+        if (!isIntOrArray(value) || !isInt(channel) || !output.send) {
             return;
         }
 
@@ -66,15 +62,16 @@ const effectPrototype = {
             value      = isArray(value)      ? value      : [value];
 
             for (let i of controller.keys()) {
-                // In dev the setTimeout does not seem to be needed
-                // In prod if it is not there the message seems to be corrupted
-                setTimeout(() => {
-                    output.sendControlChange(controller[i], value[i], channel);
+                output.send("cc", {
+                    controller: controller[i],
+                    value: value[i],
+                    channel: channel - 1
                 });
             }
         } else {
-            setTimeout(() => {
-                output.sendProgramChange(value, channel);
+            output.send("program", {
+                number: value,
+                channel: channel - 1
             });
         }
 

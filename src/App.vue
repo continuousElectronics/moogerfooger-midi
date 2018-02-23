@@ -2,7 +2,7 @@
     <div id="app">
         <div class="global-wrapper">
             <avail-effects @effectEvent="createEffect($event)"></avail-effects>
-            <midi-dest @destEvent="output = outputs[$event]" :outputs="outputs"></midi-dest>
+            <midi-dest @destEvent="setOutput($event)" :outputs="outputs"></midi-dest>
             <midi-clock :output="output"></midi-clock>
             <global-send @globalSendEvent="globalSend"></global-send>
         </div>
@@ -34,6 +34,10 @@ export default {
         WebMidi: {
             type: Object,
             required: true
+        },
+        easymidi: {
+            type: Object,
+            required: true
         }
     },
     components: { 
@@ -54,7 +58,9 @@ export default {
     },
     beforeMount() {
         this.outputs = this.WebMidi.outputs;
-        this.output  = this.outputs[0] || {};
+        let Output = this.easymidi.Output;
+        this.output = new Output(this.outputs[0].name) || {};
+
         setupMenuListeners(this);
     },
     methods: {
@@ -99,6 +105,11 @@ export default {
             for (let effect of this.effects) {
                 effect.sendAllMessages();
             }
+        },
+        setOutput(name) {
+            let Output = this.easymidi.Output;
+            this.output = new Output(name);
+
         },
         toClassName
     }
