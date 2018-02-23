@@ -57,10 +57,9 @@ export default {
         };
     },
     beforeMount() {
+        const Output = this.easymidi.Output;
         this.outputs = this.WebMidi.outputs;
-        let Output = this.easymidi.Output;
         this.output = new Output(this.outputs[0].name) || {};
-
         setupMenuListeners(this);
     },
     methods: {
@@ -107,9 +106,8 @@ export default {
             }
         },
         setOutput(name) {
-            let Output = this.easymidi.Output;
-            this.output = new Output(name);
-
+            const Output = this.easymidi.Output;
+            this.output = new Output(name) || {};
         },
         toClassName
     }

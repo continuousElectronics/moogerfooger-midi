@@ -20,7 +20,7 @@ app.on("ready", () => {
         width: 1217,
         height: 768
     });
-    mainWindow.webContents.openDevTools();
+
     mainWindow.webContents.on("will-navigate", (e) => {
         e.preventDefault();
     });
