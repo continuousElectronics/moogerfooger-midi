@@ -36,7 +36,6 @@ const send = function (output, channel, value, controller) {
         value      = isArray(value)      ? value      : [value];
 
         for (let i of controller.keys()) {
-            console.log(controller[i], value[i], channel);
             output.send("cc", {
                 controller: controller[i],
                 value: value[i],
