@@ -64,7 +64,7 @@ const effectPrototype = {
                 
                 if (dclkSyncOn) {
                     // triplets disable whenever using delay clock sync
-                    send(this.vm.output, this.channel - 1, 0, 88);
+                    send(this.vm.output, this.channel - 1, 127, 88);
                 }
 
                 if (!timeWhileSync && !lfoWhileSync) {
