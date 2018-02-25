@@ -80,7 +80,6 @@
         "midi-clock": "0.0.1",
         "proto-create": "^1.0.1",
         "vue": "^2.5.9",
-        "vue-select": "^2.4.0",
-        "webmidi": "^2.0.0"
+        "vue-select": "^2.4.0"
     }
 }

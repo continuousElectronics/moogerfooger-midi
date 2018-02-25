@@ -1,10 +1,14 @@
-const indexRange = function* (length) {
+const rangeI = function* (length) {
     let i = 0;
 
     while (i < length) {
         yield i;
         i += 1;
     }
+};
+
+const rangeA = function (length) {
+    return Array.from(rangeI(length));
 };
 
 const isInt = function (input) {
@@ -102,7 +106,8 @@ const markIfFileChanged = function (vm, fileopen) {
 };
 
 export {
-    indexRange,
+    rangeI,
+    rangeA,
     isInt,
     isArray,
     isIntOrArray,

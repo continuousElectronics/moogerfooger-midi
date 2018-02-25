@@ -2,7 +2,7 @@
     <div id="app">
         <div class="global-wrapper">
             <avail-effects @effectEvent="createEffect($event)"></avail-effects>
-            <midi-dest @destEvent="setOutput($event)" :outputs="outputs"></midi-dest>
+            <midi-dest @destEvent="setOutput($event)" :outputs="outputs" :init="initOut"></midi-dest>
             <midi-clock :output="output"></midi-clock>
             <global-send @globalSendEvent="globalSend"></global-send>
         </div>
@@ -25,21 +25,13 @@ import midiClock    from "./components/global/midi-clock.vue";
 import globalSend   from "./components/global/global-send.vue";
 
 const
-    { remote } = require("electron"),
+    remote    = require("electron").remote,
+    easymidi  = remote.getGlobal("easymidi"),
+    Output    = easymidi.Output,
     effectMax = 16;
 
 export default {
     name: "app",
-    props: {
-        WebMidi: {
-            type: Object,
-            required: true
-        },
-        easymidi: {
-            type: Object,
-            required: true
-        }
-    },
     components: { 
         effect, 
         availEffects, 
@@ -52,15 +44,31 @@ export default {
             outputs: [],
             output:  {},
             effects: [],
+            initOut: "",
             filepath: undefined,
             fileChanged: false
         };
     },
     beforeMount() {
-        const Output = this.easymidi.Output;
-        this.outputs = this.WebMidi.outputs;
-        this.output = new Output(this.outputs[0].name) || {};
+        // using ipcRenderer to setup file and menu operations.
         setupMenuListeners(this);
+
+        // using chromium API to make "outputs" array of port names reactive 
+        navigator.requestMIDIAccess()
+            .then(access => {
+                const initPort = 0;
+                const getPortNames = () => Array.from(
+                    access.outputs.values()
+                ).map(o => o.name);
+                
+                this.outputs = getPortNames();
+                this.output  = new Output(this.outputs[initPort]);
+                this.initOut = this.outputs[initPort];
+
+                access.onstatechange = e => {
+                    this.outputs = getPortNames();
+                };
+            });
     },
     methods: {
         createEffect(effectName, current, channel, fileopen) {
@@ -75,19 +83,16 @@ export default {
                 return;
             }
             
-            // if there is a file open and it hasn't been changed,
-            // creating effect (not from file open process) marks file changed
+            // mark file changed (if not caleed from from file open process)
             markIfFileChanged(this, fileopen);
 
-            // construct new effect object
+            // construct new effect object, initialize props, push into array to keep track of it.
             const newEffect = effectConstruct(effectName);
             
-            // attach channel, current settings object, and vue instance
             newEffect.channel = (channel) ? channel : len + 1;
             newEffect.current = (current) ? current : setCurrent(effectName);
             newEffect.vm      = this;
             
-            // push effect object into effects array to keep track of it
             this.effects.push(newEffect);
             
             // create mount point and attach to effects wrapper. mount new effect instance.
@@ -102,12 +107,11 @@ export default {
         },
         globalSend() {
             for (let effect of this.effects) {
-                effect.sendAllMessages();
+                effect.sendAllMessages();    
             }
         },
         setOutput(name) {
-            const Output = this.easymidi.Output;
-            this.output = new Output(name) || {};
+            this.output = new Output(name);
         },
         toClassName
     }

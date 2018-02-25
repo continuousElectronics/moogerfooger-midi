@@ -11,7 +11,7 @@
                     <v-select
                         ref="vs"
                         :value="effect.channel"
-                        :options="Array(16).fill().map((_, i) => (i + 1).toString())"
+                        :options="rangeA(16).map(i => (i + 1).toString())"
                         :searchable="false"
                         @input="effect.channel = parseInt($event)"
                     >
@@ -45,7 +45,7 @@
 
 <script>
 
-import { toClassName } from "../js/utility.js";
+import { toClassName, rangeA } from "../js/utility.js";
 import continuous      from "./continuous.vue";
 import multiswitch     from "./multiswitch.vue";
 import selectMenu      from "./selectMenu.vue";
@@ -59,19 +59,21 @@ export default {
         }
     },
     mounted() {
-        (this.$refs.vs || {}).deselect = () => {};
+        // (v-select hack) do not deselect when rechoosing item
+        (this.$refs.vs || {}).deselect = () => {}; 
     },
     methods: { 
         destroy() {
             const 
                 efxArr = this.effect.vm.effects,
-                index = efxArr.indexOf(this.effect);
+                index  = efxArr.indexOf(this.effect);
             
             efxArr.splice(index, 1);
             this.$destroy();
             this.$el.remove();
         },
-        toClassName
+        toClassName,
+        rangeA
     }
 };
 

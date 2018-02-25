@@ -32,16 +32,14 @@ const setCurrent = function (name) {
 
 const effectPrototype = {
     sendMessage(state, value, el) {
-        const 
-            effectMap = effectsMap.get(this.name),
-            stateObj  = effectMap.get(state),
-            channel   = this.channel,
-            output    = this.vm.output;
+        const
+            stateObj = effectsMap.get(this.name).get(state),
+            channel  = this.channel - 1, // easymidi channel is zero indexed
+            output   = this.vm.output,
+            timeWhileSync = (state === "Time" && this.current["Delay Clock Sync"] === 64),
+            lfoWhileSync  = (state === "LFO Rate" && this.current["LFO Clock Sync"] === 64);
 
-        if (
-            (state === "Time" && this.current["Delay Clock Sync"] === 64)   ||
-            (state === "LFO Rate" && this.current["LFO Clock Sync"] === 64)
-        ) {
+        if (timeWhileSync || lfoWhileSync) {
             return;
         }
 
@@ -65,13 +63,13 @@ const effectPrototype = {
                 output.send("cc", {
                     controller: controller[i],
                     value: value[i],
-                    channel: channel - 1
+                    channel: channel
                 });
             }
         } else {
             output.send("program", {
                 number: value,
-                channel: channel - 1
+                channel: channel
             });
         }
 

@@ -10,9 +10,9 @@
         >
             <option 
                 v-for="(output, index) in outputs" 
-                :value="output.name"
+                :value="output"
                 :key="index"
-            >{{ output.name }}</option>
+            >{{ output }}</option>
         </select>
     </div>
 </template>
@@ -24,13 +24,22 @@ export default {
         outputs: {
             type: Array,
             required: true
+        },
+        init: {
+            type: String,
+            default: ""
         }
     },
     data() {
         return {
             menuSize: 5,
-            value: this.outputs[0].name
+            value: this.init
         };
+    },
+    watch: {
+        init(val) {
+            this.value = val;
+        }
     }
 };
 

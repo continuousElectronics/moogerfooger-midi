@@ -39,6 +39,7 @@ export default {
         }
     },
     mounted() {
+        // (v-select hack) do not deselect when rechoosing item
         (this.$refs.vs || {}).deselect = () => {};
     },
     methods: {
