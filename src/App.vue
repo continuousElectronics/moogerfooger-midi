@@ -17,7 +17,7 @@
 import Vue from "vue";
 import { setupMenuListeners } from "./fileOperations.js";
 import { effectConstruct, setCurrent } from "./js/effect.js";
-import { toClassName, markIfFileChanged } from "./js/utility.js";
+import { toClassName, markIfFileChanged, outlineBlink } from "./js/utility.js";
 import effect       from "./components/effect.vue";
 import availEffects from "./components/global/available-effects.vue";
 import midiDest     from "./components/global/midi-destination.vue";
@@ -106,9 +106,28 @@ export default {
             newEffect.component = inst;
         },
         globalSend() {
-            for (let effect of this.effects) {
-                effect.sendAllMessages();    
+            for (let node of this.$refs.efxWrap.childNodes) {
+                outlineBlink(node);
             }
+            
+            let effects = this.effects;
+            let index = 0;
+
+            // after all messages on the "current" object are sent for each existing effect
+            // we recurse until all messages for all effects have been sent
+            // this is done to avoid glitches from message sends too close together
+            const sendAllLoop = (effect) => {
+                effect.sendAllMessages().then(val => {
+                    index += 1;
+                    if (index < effects.length) {
+                        sendAllLoop(effects[index]);
+                        return;
+                    }
+                });
+            };
+
+            // start recursion
+            sendAllLoop(effects[0]);
         },
         setOutput(name) {
             this.output = new Output(name);

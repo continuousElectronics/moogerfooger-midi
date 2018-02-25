@@ -30,63 +30,80 @@ const setCurrent = function (name) {
     return o;
 };
 
-const effectPrototype = {
-    sendMessage(state, value, el) {
-        const
-            stateObj = effectsMap.get(this.name).get(state),
-            channel  = this.channel - 1, // easymidi channel is zero indexed
-            output   = this.vm.output,
-            timeWhileSync = (state === "Time" && this.current["Delay Clock Sync"] === 64),
-            lfoWhileSync  = (state === "LFO Rate" && this.current["LFO Clock Sync"] === 64);
+const send = function (output, channel, value, controller) {
+    if (controller) {
+        controller = isArray(controller) ? controller : [controller];
+        value      = isArray(value)      ? value      : [value];
 
-        if (timeWhileSync || lfoWhileSync) {
-            return;
-        }
-
-        if (!stateObj.options || stateObj.options.length > 1) {
-            this.current[state] = value;
-            markIfFileChanged(this.vm);
-        }
-
-        if (!isIntOrArray(value) || !isInt(channel) || !output.send) {
-            return;
-        }
-
-        let controller = stateObj.controller;
-        
-        // if controller is defined on state Object, it is a CC message, otherwise it is a Program Change
-        if (controller) {
-            controller = isArray(controller) ? controller : [controller];
-            value      = isArray(value)      ? value      : [value];
-
-            for (let i of controller.keys()) {
-                output.send("cc", {
-                    controller: controller[i],
-                    value: value[i],
-                    channel: channel
-                });
-            }
-        } else {
-            output.send("program", {
-                number: value,
+        for (let i of controller.keys()) {
+            console.log(controller[i], value[i], channel);
+            output.send("cc", {
+                controller: controller[i],
+                value: value[i],
                 channel: channel
             });
         }
+    } else {
+        output.send("program", {
+            number: value,
+            channel: channel
+        });
+    }
+};
 
-        // Outline state blinks on message send
-        if (el) {
-            outlineBlink(el);
-        }
+const effectPrototype = {
+    sendMessage(state, value, el) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const
+                    stateObj = effectsMap.get(this.name).get(state),
+                    timeWhileSync = (state === "Time" && this.current["Delay Clock Sync"] === 64),
+                    lfoWhileSync  = (state === "LFO Rate" && this.current["LFO Clock Sync"] === 64),
+                    dclkSyncOn    = (state === "Delay Clock Sync" && value === 64);
+
+                let controller = stateObj.controller;
+                
+                if (dclkSyncOn) {
+                    // triplets disable whenever using delay clock sync
+                    send(this.vm.output, this.channel - 1, 0, 88);
+                }
+
+                if (!timeWhileSync && !lfoWhileSync) {
+                    // subtract 1 from channel since easymidi channels are zero indexed
+                    send(this.vm.output, this.channel - 1, value, controller);
+                    outlineBlink(el);
+                }
+
+                if (!stateObj.options || stateObj.options.length > 1) {
+                    this.current[state] = value;
+                    markIfFileChanged(this.vm);
+                }
+
+                resolve("done");
+            }, 20); // inserting 20 ms between each message send to avoid glitch from moogs
+        });
     },
     sendAllMessages() {
-        const nodes = this.vm.$el.querySelector(".effects-wrapper").childNodes;
-        
-        for (let node of nodes) {
-            outlineBlink(node);
-        }
-        for (let [state, value] of Object.entries(this.current)) {
-            this.sendMessage(state, value);
-        }
+        return new Promise((resolve, reject) => {    
+            let entries = Object.entries(this.current);
+            let index = 0;
+            
+            // each message send is a promise that when finished sends the next entry on "current"
+            // when all are done "sendAllMessages" (this function) resolves, as it is a promise itself
+            const sendLoop = (entry) => {
+                this.sendMessage(entry[0], entry[1]).then(val => {
+                    index += 1;
+                    if (index < entries.length) {
+                        sendLoop(entries[index]);
+                        return;
+                    }
+                    resolve("done");
+                });
+            };
+
+            // start recursion
+            sendLoop(entries[0]);
+        });
     },
     get states() {
         return Array.from(
