@@ -59,9 +59,7 @@ export default {
         navigator.requestMIDIAccess()
             .then(access => {
                 const initPort = 0;
-                const getPortNames = () => Array.from(
-                    access.outputs.values()
-                ).map(o => o.name);
+                const getPortNames = () => Array.from(access.outputs.values()).map(o => o.name);
                 
                 this.outputs = getPortNames();
                 this.output  = new Output(this.outputs[initPort]);
@@ -117,7 +115,8 @@ export default {
             newEffect.component = inst;
         },
         /**
-         * Called from "global-send" component: Sends all of the messages on all effects on the current setup
+         * Called from "global-send" component: 
+         * Sends all of the messages on all effects on the current setup
          * @function globalSend
          * @returns {void}
          */
@@ -145,6 +144,12 @@ export default {
             // start recursion
             sendAllLoop(effects[0]);
         },
+        /**
+         * Called from "midi-dest" component: 
+         * sets output data object to midi output port object 
+         * @function setOutput
+         * @returns {void}
+         */
         setOutput(name) {
             this.output = new Output(name);
         },
