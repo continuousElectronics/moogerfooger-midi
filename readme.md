@@ -8,7 +8,7 @@ This application (built with Electron) provides an interface to send midi messag
 
 ### Mac
 
-Download dmg [here](https://github.com/continuousElectronics/moogerfooger-midi/raw/master/Moogerfooger%20Midi.dmg)
+Download dmg [here](https://github.com/continuousElectronics/moogerfooger-midi/raw/master/releases/Moogerfooger%20Midi.dmg)
 
 Other platforms coming soon...
 
