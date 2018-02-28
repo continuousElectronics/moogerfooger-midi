@@ -1,3 +1,10 @@
+/**
+ * Contains general utility functions used througout various parts of the application
+ * @module utility
+ * @see ./state-options.js, ./effect.js, ../App.vue, ../components/effect.vue, 
+ * ../components/continuous.vue, ../components/global/midi-clock.vue
+ */
+
 const rangeI = function* (length) {
     let i = 0;
 

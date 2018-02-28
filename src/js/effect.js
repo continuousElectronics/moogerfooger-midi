@@ -1,3 +1,9 @@
+/**
+ * Imports effect info, sets up prototype with send methods for each newly created object
+ * @module effect
+ * @see ../App.vue
+ */
+
 import delayMap   from "./effects/mf-104-delay.js";
 import clusterMap from "./effects/mf-108-cluster.js";
 import murfMap    from "./effects/mf-105-murf.js";
@@ -67,6 +73,11 @@ const effectPrototype = {
                     send(this.vm.output, this.channel - 1, 127, 88);
                 }
 
+                // do not send the message if: 
+                // the requested change is LFO Rate and LFO Clock sync is engaged  OR 
+                // the requested change is Time and Delay Clock sync is engaged
+                // this clears up a bug in the moogs where even if the clock is synced and you send all messages,
+                // the time cc message will take precedence over the clock sync tempo 
                 if (!timeWhileSync && !lfoWhileSync) {
                     // subtract 1 from channel since easymidi channels are zero indexed
                     send(this.vm.output, this.channel - 1, value, controller);

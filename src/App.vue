@@ -1,11 +1,13 @@
 <template>
     <div id="app">
         <div class="global-wrapper">
+            <!-- These components are available globally regardless of effects setup -->
             <avail-effects @effectEvent="createEffect($event)"></avail-effects>
             <midi-dest @destEvent="setOutput($event)" :outputs="outputs" :init="initOut"></midi-dest>
             <midi-clock :output="output"></midi-clock>
             <global-send @globalSendEvent="globalSend"></global-send>
         </div>
+        <!-- the newly created effects are mounted inside the below effects-wrapper -->
         <div class="effects-wrapper" ref="efxWrap">
 
         </div>
@@ -26,9 +28,9 @@ import globalSend   from "./components/global/global-send.vue";
 
 const
     remote    = require("electron").remote,
-    easymidi  = remote.getGlobal("easymidi"),
-    Output    = easymidi.Output,
-    effectMax = 16;
+    easymidi  = remote.getGlobal("easymidi"), // loaded via remote from main process since not available in browser context
+    Output    = easymidi.Output, // constructor for connecting to a new output
+    effectMax = 16; // maximum number of effects allowed to be created
 
 export default {
     name: "app",
@@ -71,6 +73,15 @@ export default {
             });
     },
     methods: {
+        /**
+         * constructs new effect object, pushes into "effects" array in data, and mounts effect in DOM
+         * @function createEffect
+         * @param {String} effectName - Name of the effect
+         * @param {Object} current - Holds all of the current state values.
+         * @param {Number} channel - Number between 1 - 16 representing MIDI channel
+         * @param {String} fileopen - The existance of it indicates if this function is called from file open process
+         * @returns {void}
+         */
         createEffect(effectName, current, channel, fileopen) {
             const len = this.effects.length;
             
@@ -83,7 +94,7 @@ export default {
                 return;
             }
             
-            // mark file changed (if not caleed from from file open process)
+            // mark file changed (if not called from from file open process)
             markIfFileChanged(this, fileopen);
 
             // construct new effect object, initialize props, push into array to keep track of it.
@@ -105,6 +116,11 @@ export default {
             inst.$mount(wrap);
             newEffect.component = inst;
         },
+        /**
+         * Called from "global-send" component: Sends all of the messages on all effects on the current setup
+         * @function globalSend
+         * @returns {void}
+         */
         globalSend() {
             for (let node of this.$refs.efxWrap.childNodes) {
                 outlineBlink(node);

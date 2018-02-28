@@ -1,3 +1,10 @@
+/**
+ * Imports svg strings for dropdown menu options that need them
+ * and produces arrays of options to be exported used by multiple effects
+ * @module state-options
+ * @see ./effects/mf-104-delay.js, ./effects/mf-105-murf.js, ./effects/mf-108-cluster.js
+ */
+
 import { renderSymbols } from "./utility.js";
 import sine     from "../assets/svg/sine.svg";
 import triangle from "../assets/svg/triangle.svg";
@@ -66,6 +73,13 @@ const clockDivisions = [
 ];
 
 export {
+    /**
+     * All exports are 
+     * @Object
+     * @param {string} color - A color, in hexadecimal format.
+     * @returns {Array.<number>} An array of the red, green, and blue values,
+     * each ranging from 0 to 255.
+     */
     onOff,
     delayTimeMultiplier,
     lfoWaveform,
