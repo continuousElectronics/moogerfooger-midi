@@ -57,16 +57,11 @@ export default {
 
         // using chromium API to make "outputs" array of port names reactive 
         navigator.requestMIDIAccess()
-            .then(access => {
-                const initPort = 0;
-                const getPortNames = () => Array.from(access.outputs.values()).map(o => o.name);
-                
-                this.outputs = getPortNames();
-                this.output  = new Output(this.outputs[initPort]);
-                this.initOut = this.outputs[initPort];
+            .then(access => {                
+                this.outputs = easymidi.getOutputs();
 
                 access.onstatechange = e => {
-                    this.outputs = getPortNames();
+                    this.outputs = easymidi.getOutputs();
                 };
             });
     },

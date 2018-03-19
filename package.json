@@ -59,6 +59,7 @@
         "css-loader": "^0.28.7",
         "electron": "^1.8.2",
         "electron-builder": "^20.0.7",
+        "electron-builder-squirrel-windows": "^20.2.0",
         "electron-rebuild": "^1.7.3",
         "electron-reload": "^1.2.2",
         "eslint": "^4.16.0",
