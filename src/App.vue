@@ -55,11 +55,13 @@ export default {
         // using ipcRenderer to setup file and menu operations.
         setupMenuListeners(this);
 
-        // using chromium API to make "outputs" array of port names reactive 
+        // setup outputs on program load
+        this.outputs = easymidi.getOutputs();
+
+        // using chromium API to make "outputs" array of port names reactive
+        // this ensures that the midi destination menu will update when devices are added or removed
         navigator.requestMIDIAccess()
             .then(access => {                
-                this.outputs = easymidi.getOutputs();
-
                 access.onstatechange = e => {
                     this.outputs = easymidi.getOutputs();
                 };
