@@ -3,7 +3,7 @@
         <div class="global-wrapper">
             <!-- These components are available globally regardless of effects setup -->
             <avail-effects @effectEvent="createEffect($event)"></avail-effects>
-            <midi-dest @destEvent="setOutput($event)" :outputs="outputs" :init="initOut"></midi-dest>
+            <midi-dest @destEvent="output = $event" :outputs="outputs"></midi-dest>
             <midi-clock :output="output"></midi-clock>
             <global-send @globalSendEvent="globalSend"></global-send>
         </div>
@@ -41,12 +41,17 @@ export default {
         midiClock,
         globalSend
     },
+    props: {
+        WebMidi: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
             outputs: [],
             output:  {},
             effects: [],
-            initOut: "",
             filepath: undefined,
             fileChanged: false
         };
@@ -56,16 +61,7 @@ export default {
         setupMenuListeners(this);
 
         // setup outputs on program load
-        this.outputs = easymidi.getOutputs();
-
-        // using chromium API to make "outputs" array of port names reactive
-        // this ensures that the midi destination menu will update when devices are added or removed
-        navigator.requestMIDIAccess()
-            .then(access => {                
-                access.onstatechange = e => {
-                    this.outputs = easymidi.getOutputs();
-                };
-            });
+        this.outputs = this.WebMidi.outputs;
     },
     methods: {
         /**
@@ -140,15 +136,6 @@ export default {
 
             // start recursion
             sendAllLoop(effects[0]);
-        },
-        /**
-         * Called from "midi-dest" component: 
-         * sets output data object to midi output port object 
-         * @function setOutput
-         * @returns {void}
-         */
-        setOutput(name) {
-            this.output = new Output(name);
         },
         toClassName
     }

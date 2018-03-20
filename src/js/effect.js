@@ -50,28 +50,25 @@ const setCurrent = function (name) {
   * @function send
   * @param {Object} output - Port Output object
   * @param {Number} channel - MIDI channel to send on
-  * @param {Number_or_Array} value  number or array of value of message to be sent
-  * @param {Number_or_Array} controller - name of the effect
-  * @returns {void}
+  * @param {Number_or_Array} value  number or array of value
+  * @param {Number_or_Array} controller - number or array of controller
+  * @returns {Boolean} True if message was sent, false if not
   */
 const send = function (output, channel, value, controller) {
-    if (controller) {
+    if (!output.sendControlChange) {
+        return false;
+    }
+    if (isIntOrArray(controller)) {
         controller = isArray(controller) ? controller : [controller];
         value      = isArray(value)      ? value      : [value];
 
         for (let i of controller.keys()) {
-            output.send("cc", {
-                controller: controller[i],
-                value: value[i],
-                channel: channel
-            });
+            output.sendControlChange(controller[i], value[i], channel);
         }
     } else {
-        output.send("program", {
-            number: value,
-            channel: channel
-        });
+        output.sendProgramChange(value, channel);
     }
+    return true;
 };
 
 const effectPrototype = {
@@ -99,7 +96,7 @@ const effectPrototype = {
                 
                 if (dclkSyncOn) {
                     // triplets disable whenever using delay clock sync
-                    send(this.vm.output, this.channel - 1, 127, 88);
+                    send(this.vm.output, this.channel, 127, 88);
                 }
 
                 // do not send the message if: 
@@ -108,9 +105,10 @@ const effectPrototype = {
                 // this clears up a bug in the moogs where even if the clock is synced and you send all messages,
                 // the time cc message will take precedence over the clock sync tempo 
                 if (!timeWhileSync && !lfoWhileSync) {
-                    // subtract 1 from channel since easymidi channels are zero indexed
-                    send(this.vm.output, this.channel - 1, value, controller);
-                    outlineBlink(el);
+                    let sent = send(this.vm.output, this.channel, value, controller);
+                    if (sent) {
+                        outlineBlink(el);
+                    }
                 }
 
                 if (!stateObj.options || stateObj.options.length > 1) {

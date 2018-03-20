@@ -59,6 +59,7 @@
         "css-loader": "^0.28.7",
         "electron": "^1.8.2",
         "electron-builder": "^20.0.7",
+        "electron-builder-lib": "^20.2.1",
         "electron-builder-squirrel-windows": "^20.2.0",
         "electron-rebuild": "^1.7.3",
         "electron-reload": "^1.2.2",
@@ -81,6 +82,7 @@
         "midi-clock": "0.0.1",
         "proto-create": "^1.0.1",
         "vue": "^2.5.9",
-        "vue-select": "^2.4.0"
+        "vue-select": "^2.4.0",
+        "webmidi": "^2.0.4"
     }
 }
