@@ -4,21 +4,16 @@ if (inDev) {
     require("electron-reload")(__dirname); 
 }
 
-// requiring easymidi in main process since it it not available in browser window
-global.easymidi = require("easymidi");
-
-const { app, BrowserWindow, Menu, powerSaveBlocker } = require("electron");
+const { app, BrowserWindow, Menu } = require("electron");
 
 let mainWindow;
-
-// powerSaveBlocker.start("prevent-app-suspension");
 
 app.setName("Moogerfooger Midi");
 
 app.on("ready", () => {
 
     mainWindow = new BrowserWindow({
-        width: 1217,
+        width: 1300,
         height: 768
     });
 

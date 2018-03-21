@@ -69,8 +69,8 @@ export default {
             button  = this.$refs.clockButton;
 
         clock.on("position", (position) => {
-            if (this.output.send) {
-                this.output.send("clock");
+            if (this.output.sendClock) {
+                this.output.sendClock();
             }
             if (position % 24 === 0) {
                 outlineBlink(input);

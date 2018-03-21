@@ -28,8 +28,6 @@ import globalSend   from "./components/global/global-send.vue";
 
 const
     remote    = require("electron").remote,
-    easymidi  = remote.getGlobal("easymidi"), // loaded via remote from main process since not available in browser context
-    Output    = easymidi.Output, // constructor for connecting to a new output
     effectMax = 16; // maximum number of effects allowed to be created
 
 export default {
